@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Droplets, Thermometer } from "lucide-react";
 
 async function getData() {
-  const res = await fetch("/api"); // Ujisti se, že používáš správnou URL
+  const res = await fetch("/api"); // Ensure you're using the correct URL
   if (!res.ok) {
     throw new Error(
       "Failed to fetch data: " + res.status + " " + res.statusText
@@ -18,6 +18,7 @@ export default function Page() {
   const [currentData, setCurrentData] = useState({
     temperature: 0,
     humidity: 0,
+    timestamp: "", // Initialize timestamp state
   });
 
   useEffect(() => {
@@ -29,9 +30,14 @@ export default function Page() {
         if (
           result.data &&
           result.data.temperature !== undefined &&
-          result.data.humidity !== undefined
+          result.data.humidity !== undefined &&
+          result.data.timestamp // Check if timestamp exists
         ) {
-          setCurrentData(result.data); // Update state with the fetched data
+          setCurrentData({
+            temperature: result.data.temperature,
+            humidity: result.data.humidity,
+            timestamp: result.data.timestamp, // Update timestamp
+          });
         } else {
           console.error("Invalid data structure:", result);
         }
@@ -45,6 +51,12 @@ export default function Page() {
 
     return () => clearInterval(intervalId); // Cleanup on unmount
   }, []);
+
+  // Format the timestamp
+  const formatTimestamp = (timestamp: any) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString(); // Adjust format as needed
+  };
 
   return (
     <div className="min-h-screen p-8 bg-gradient-to-br from-blue-400 to-blue-600">
@@ -76,6 +88,19 @@ export default function Page() {
             <p className="text-xs text-muted-foreground">
               Aktuální vlhkost vzduchu
             </p>
+          </CardContent>
+        </Card>
+
+        {/* New Card for Timestamp */}
+        <Card className="col-span-1">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Čas měření</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {formatTimestamp(currentData.timestamp)}
+            </div>
+            <p className="text-xs text-muted-foreground">Čas měření</p>
           </CardContent>
         </Card>
       </div>
