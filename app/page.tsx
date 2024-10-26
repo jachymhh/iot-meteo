@@ -5,9 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Droplets, Thermometer } from "lucide-react";
 
 async function getData() {
-  const res = await fetch("http://10.0.0.9/senzordata");
+  const res = await fetch("/api"); // Ujisti se, že používáš správnou URL
   if (!res.ok) {
-    throw new Error("Failed to fetch data");
+    throw new Error(
+      "Failed to fetch data: " + res.status + " " + res.statusText
+    );
   }
   return res.json();
 }
@@ -24,9 +26,12 @@ export default function Page() {
         const result = await getData();
         console.log("Fetched data:", result); // Log fetched data
 
-        // Check if the structure of result is valid
-        if (result.temperature !== undefined && result.humidity !== undefined) {
-          setCurrentData(result); // Update state with the fetched data
+        if (
+          result.data &&
+          result.data.temperature !== undefined &&
+          result.data.humidity !== undefined
+        ) {
+          setCurrentData(result.data); // Update state with the fetched data
         } else {
           console.error("Invalid data structure:", result);
         }
