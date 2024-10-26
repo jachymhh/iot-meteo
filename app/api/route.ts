@@ -12,8 +12,17 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Přidání hlaviček pro zakázání caching
+  const headers = new Headers();
+  headers.set(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate"
+  );
+  headers.set("Pragma", "no-cache");
+  headers.set("Expires", "0");
+
   return NextResponse.json(
     { data: data.length > 0 ? data[0] : null },
-    { status: 200 }
+    { status: 200, headers }
   );
 }
