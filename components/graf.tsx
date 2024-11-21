@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+
 import {
   Card,
   CardContent,
@@ -25,89 +26,64 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-// Chart configuration
+// API data sample (replace with actual API fetch)
+const chartData = [
+  { temperature: 24.5, humidity: 61, timestamp: "2024-11-08T16:22:42.597638+00:00" },
+  { temperature: 27.5, humidity: 46, timestamp: "2024-11-08T06:49:40.912333+00:00" },
+  { temperature: 27.5, humidity: 46, timestamp: "2024-11-08T06:48:40.952748+00:00" },
+  { temperature: 27.5, humidity: 46, timestamp: "2024-11-08T06:47:41.088425+00:00" },
+  { temperature: 27.5, humidity: 46, timestamp: "2024-11-08T06:46:41.648056+00:00" },
+  // More data...
+]
+
 const chartConfig = {
   temperature: {
     label: "Temperature (°C)",
-    color: "hsl(var(--chart-1))", // Customize with your theme color
+    color: "hsl(var(--chart-1))",
   },
   humidity: {
     label: "Humidity (%)",
-    color: "hsl(var(--chart-2))", // Customize with your theme color
+    color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig
 
 export function Graf() {
   const [timeRange, setTimeRange] = React.useState("90d")
-  const [data, setData] = React.useState<any[]>([])
-
-  // Fetch data from API
-  React.useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch('/api/all')  // Adjust API endpoint if needed
-      const result = await response.json()
-      const apiData = result.data
-
-      // Aggregate data by date
-      const aggregatedData = aggregateDataByDate(apiData)
-      setData(aggregatedData)  // Set aggregated data to state
-    }
-
-    fetchData()
-  }, [])
-
-  // Helper function to aggregate temperature and humidity by date
-  const aggregateDataByDate = (apiData: any[]) => {
-    const aggregated: any = {}
-
-    apiData.forEach((entry) => {
-      const date = new Date(entry.timestamp).toLocaleDateString("en-US") // Format date (mm/dd/yyyy)
-      if (!aggregated[date]) {
-        aggregated[date] = { temperature: 0, humidity: 0, count: 0 }
-      }
-
-      // Aggregate temperature and humidity
-      aggregated[date].temperature += entry.temperature
-      aggregated[date].humidity += entry.humidity
-      aggregated[date].count += 1
-    })
-
-    // Convert aggregated data to array and calculate averages
-    return Object.keys(aggregated).map((date) => ({
-      date,
-      temperature: aggregated[date].temperature / aggregated[date].count,
-      humidity: aggregated[date].humidity / aggregated[date].count,
-    }))
-  }
 
   // Filter data based on selected time range
-  const filteredData = React.useMemo(() => {
-    return data.filter((item) => {
-      const date = new Date(item.date)
-      const referenceDate = new Date()
-      let daysToSubtract = 90
-      if (timeRange === "30d") {
-        daysToSubtract = 30
-      } else if (timeRange === "7d") {
-        daysToSubtract = 7
-      }
-      const startDate = new Date(referenceDate)
-      startDate.setDate(startDate.getDate() - daysToSubtract)
-      return date >= startDate
-    })
-  }, [data, timeRange])
+  const filteredData = chartData.filter((item) => {
+    const date = new Date(item.timestamp)
+    const referenceDate = new Date("2024-11-08")
+    let daysToSubtract = 90
+
+    // Adjust daysToSubtract based on selected time range
+    if (timeRange === "30d") {
+      daysToSubtract = 30
+    } else if (timeRange === "7d") {
+      daysToSubtract = 7
+    }
+
+    // Create a start date by subtracting days
+    const startDate = new Date(referenceDate)
+    startDate.setDate(startDate.getDate() - Number(daysToSubtract)) // Ensure it's a number
+
+    return date >= startDate
+  })
 
   return (
     <Card>
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
-          <CardTitle>Temperature & Humidity Chart</CardTitle>
+          <CardTitle>Temperature and Humidity Chart</CardTitle>
           <CardDescription>
             Showing temperature and humidity data for the selected period
           </CardDescription>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger className="w-[160px] rounded-lg sm:ml-auto" aria-label="Select a value">
+          <SelectTrigger
+            className="w-[160px] rounded-lg sm:ml-auto"
+            aria-label="Select a value"
+          >
             <SelectValue placeholder="Last 3 months" />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
@@ -124,28 +100,50 @@ export function Graf() {
         </Select>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-        <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
+        <ChartContainer
+          config={chartConfig}
+          className="aspect-auto h-[250px] w-full"
+        >
           <AreaChart data={filteredData}>
             <defs>
               <linearGradient id="fillTemperature" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-temperature)" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="var(--color-temperature)" stopOpacity={0.1} />
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-temperature)"
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-temperature)"
+                  stopOpacity={0.1}
+                />
               </linearGradient>
               <linearGradient id="fillHumidity" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-humidity)" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="var(--color-humidity)" stopOpacity={0.1} />
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-humidity)"
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-humidity)"
+                  stopOpacity={0.1}
+                />
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="date"
+              dataKey="timestamp"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value) => {
                 const date = new Date(value)
-                return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                return date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                })
               }}
             />
             <ChartTooltip
