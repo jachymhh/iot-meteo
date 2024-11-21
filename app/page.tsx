@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Droplets, Thermometer } from "lucide-react";
+import { Graf } from "@/components/graf";
+
 
 async function getData() {
   const res = await fetch("/api"); // Ensure you're using the correct URL
@@ -103,6 +105,20 @@ export default function Page() {
             <p className="text-xs text-muted-foreground">Čas měření</p>
           </CardContent>
         </Card>
+
+        <Card className="col-span-1">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Tlak</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {formatTimestamp(currentData.timestamp)}
+            </div>
+            <p className="text-xs text-muted-foreground">Čas měření</p>
+          </CardContent>
+        </Card>
+
+        <Graf></Graf>
       </div>
     </div>
   );
