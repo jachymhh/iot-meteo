@@ -1,13 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Droplets, Thermometer } from "lucide-react";
+import { Droplets, Thermometer, Clock, Gauge } from "lucide-react";
 import { Graf } from "@/components/graf";
-
+import { Karta } from "@/components/Card";
 
 async function getData() {
-  const res = await fetch("/api"); // Ensure you're using the correct URL
+  const res = await fetch("/api"); 
   if (!res.ok) {
     throw new Error(
       "Failed to fetch data: " + res.status + " " + res.statusText
@@ -63,62 +62,11 @@ export default function Page() {
   return (
     <div className="min-h-screen p-8 bg-gradient-to-br from-blue-400 to-blue-600">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Card className="col-span-1">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Teplota</CardTitle>
-            <Thermometer className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {currentData.temperature.toFixed(1)}°C
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Aktuální teplota v Mirovi
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="col-span-1">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Vlhkost</CardTitle>
-            <Droplets className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {currentData.humidity.toFixed(0)}%
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Aktuální vlhkost vzduchu
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* New Card for Timestamp */}
-        <Card className="col-span-1">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Čas měření</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatTimestamp(currentData.timestamp)}
-            </div>
-            <p className="text-xs text-muted-foreground">Čas měření</p>
-          </CardContent>
-        </Card>
-
-        <Card className="col-span-1">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tlak</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatTimestamp(currentData.timestamp)}
-            </div>
-            <p className="text-xs text-muted-foreground">Čas měření</p>
-          </CardContent>
-        </Card>
-
-        <Graf></Graf>
+        <Karta title="Teplota" desc="Aktuální teplota v Mirovi" value={currentData.temperature.toFixed(1)+" °C"} icon={<Thermometer className="h-4 w-4 text-muted-foreground" />}/>
+        <Karta title="Vlhkost" desc="Aktuální vlhkost v Mirovi" value={currentData.humidity.toFixed(0) + "%"} icon={ <Droplets className="h-4 w-4 text-muted-foreground" />}/>
+        <Karta title="Tlak" desc="Tlak" value={formatTimestamp(currentData.timestamp)} icon={ <Gauge className="h-4 w-4 " />}/>
+        <Karta title="Čas měření" desc="Čas měření" value={formatTimestamp(currentData.timestamp)} icon={ <Clock className="h-4 w-4 " />}/>
+        <Graf/>
       </div>
     </div>
   );
